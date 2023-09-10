@@ -2,7 +2,7 @@ import {MutationResolvers} from '../../graphql/types/ApolloServerTypes';
 import FileUploadController from '../../../domain/controllers/FileUploadController';
 
 export const FileUploadMutation: MutationResolvers = {
-  async fileUpload(_parent, {file}, context, _info) {
+  async fileUpload(_parent:any, {file}:any, context:any, _info:any) {
     console.log('FileUploadMutation fileUpload()');
     console.log({
       file,
@@ -12,7 +12,7 @@ export const FileUploadMutation: MutationResolvers = {
     const controller = new FileUploadController();
     const result = await controller.upload(file.file);
     return {
-      path: result,
+      ...result
     };
   },
 };

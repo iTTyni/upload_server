@@ -15,7 +15,12 @@ export default class FileUploadService {
   /**
    * upload
    */
-  public async upload(fileUpload: FileUpload): Promise<string> {
+  public async upload(fileUpload: FileUpload): Promise<{
+    filename?: string;
+    originName?: string;
+    extension?: string;
+    error?: Error
+  }> {
     console.log('FileUploadService upload()');
     try {
       // get stream
@@ -23,8 +28,11 @@ export default class FileUploadService {
       const stream = createReadStream();
 
       // set file path
+      const timestamp = Date.now();
       const dirPath = path.join(__dirname, `/../../.${uploadDir}`);
-      const filePath = `${dirPath}/${filename}`;
+      const extension = path.extname(filename);
+      const newFilename = `${timestamp.toString()}${extension}`;
+      const filePath = `${dirPath}/${newFilename}`;
       const resultPath = `${uploadDir}/${filename}`;
 
       // create directory
@@ -39,11 +47,15 @@ export default class FileUploadService {
       // create file
       await stream.pipe(fs.createWriteStream(filePath));
 
-      return resultPath;
+      return {
+        filename: newFilename,
+        originName: filename,
+        extension,
+      };
     } catch (e) {
       console.error(e);
 
-      return '';
+      return {error: Error('Could not create file')}
     }
   }
 }

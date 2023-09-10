@@ -12,7 +12,12 @@ export default class FileUploadController {
   /**
    * upload
    */
-  public async upload(fileUpload: FileUpload): Promise<string> {
+  public async upload(fileUpload: FileUpload): Promise<{
+    filename?: string;
+    originName?: string;
+    extension?: string;
+    error?: Error;
+  }> {
     return await this.fileUploadService.upload(fileUpload);
   }
 }

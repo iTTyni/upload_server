@@ -37,7 +37,9 @@ export type FileUploadRequest = {
 /** ファイルアップロードレスポンス */
 export type FileUploadResponse = {
   __typename?: 'FileUploadResponse';
-  path: Scalars['String'];
+  filename: Scalars['String'];
+  originName: Scalars['String'];
+  extension: Scalars['String'];
 };
 
 /** ヘルスチェック */
@@ -310,12 +312,7 @@ export type MutationResolvers<
   ContextType = any,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']
 > = ResolversObject<{
-  fileUpload?: Resolver<
-    Maybe<ResolversTypes['FileUploadResponse']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationFileUploadArgs, 'file'>
-  >;
+  fileUpload?: any;
 }>;
 
 export type QueryResolvers<
@@ -354,7 +351,9 @@ export const typeDefs = gql`
   ファイルアップロードレスポンス
   """
   type FileUploadResponse {
-    path: String!
+    filename: String
+    originName: String
+    extension: String
   }
 
   """
