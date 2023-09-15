@@ -15,7 +15,7 @@ const Mutation: MutationResolvers = {
   ...FileUploadMutation,
 };
 
-export const resolvers: Resolvers = {
+export const resolvers: any = {
   Query,
   Mutation,
 

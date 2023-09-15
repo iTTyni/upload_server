@@ -351,9 +351,11 @@ export const typeDefs = gql`
   ファイルアップロードレスポンス
   """
   type FileUploadResponse {
+    _id: String
     filename: String
     originName: String
     extension: String
+    error: String
   }
 
   """

@@ -2,11 +2,64 @@ import {FileUpload} from '../../web_server/graphql/scalars';
 import * as fs from 'fs';
 import * as path from 'path';
 import {createDirectory} from '../../utils/DirectoryFileUtil';
+import axios from 'axios';
 
 /**
  * const
  */
 const uploadDir = './upload_files';
+
+/** function save data to db */
+async function checkImage(name: string) {
+  // save file details to image services
+  const data: any = await axios
+    .post(
+      'http://localhost:8060/image',
+      {
+        query: `query{read_image_by_origin_name(name: "${name}"){_id filename originName extension isExist}}`,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    .then(response => response)
+    .catch(error => {
+      // Handle network or other errors
+      console.error('Axios Error:', error);
+    });
+  return data?.data?.data.read_image_by_origin_name;
+}
+async function saveData(
+  newFilename: string,
+  filename: string,
+  extension: string
+) {
+  // save file details to image services
+  const data: any = await axios
+    .post(
+      'http://localhost:8060/image',
+      {
+        query: `mutation{write_image(image:{
+      filename: "${newFilename}",
+      originName: "${filename}",
+      extension: "${extension}"
+    }){_id filename originName extension isExist}}`,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    .then(response => response)
+    .catch(error => {
+      // Handle network or other errors
+      console.error('Axios Error:', error);
+    });
+  return data?.data?.data?.write_image;
+}
 
 /**
  * FileUploadService
@@ -15,12 +68,7 @@ export default class FileUploadService {
   /**
    * upload
    */
-  public async upload(fileUpload: FileUpload): Promise<{
-    filename?: string;
-    originName?: string;
-    extension?: string;
-    error?: Error
-  }> {
+  public async upload(fileUpload: FileUpload): Promise<any> {
     console.log('FileUploadService upload()');
     try {
       // get stream
@@ -35,27 +83,24 @@ export default class FileUploadService {
       const filePath = `${dirPath}/${newFilename}`;
       const resultPath = `${uploadDir}/${filename}`;
 
-      // create directory
-      createDirectory(dirPath);
+      const checkFileOnDb = await checkImage(filename);
 
-      console.log('FileUploadService upload() result');
-      console.log({
-        filePath,
-        resultPath,
-      });
+      if (checkFileOnDb) return checkFileOnDb;
+      else {
+        // create directory
+        createDirectory(dirPath);
 
-      // create file
-      await stream.pipe(fs.createWriteStream(filePath));
+        // create file if not exists
+        await stream.pipe(fs.createWriteStream(filePath));
 
-      return {
-        filename: newFilename,
-        originName: filename,
-        extension,
-      };
+        const saveImage = await saveData(newFilename, filename, extension);
+
+        return {...saveImage};
+      }
     } catch (e) {
       console.error(e);
 
-      return {error: Error('Could not create file')}
+      return {error: 'Could not create file'};
     }
   }
 }
