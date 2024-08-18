@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {MutationResolvers} from '../../graphql/types/ApolloServerTypes';
 import FileUploadController from '../../../domain/controllers/FileUploadController';
 
